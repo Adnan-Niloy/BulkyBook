@@ -30,11 +30,14 @@ namespace BulkyBookWeb.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Category category)
         {
+            if (!ModelState.IsValid)
+                return View(category);
+
             _db.Categories.Add(category);
             _db.SaveChanges();
             return RedirectToAction("Index");
-        }
 
+        }
 
     }
 }
