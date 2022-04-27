@@ -1,0 +1,17 @@
+﻿using System.Linq.Expressions;
+
+namespace BulkyBook.DataAccess.Repository.Interface
+{
+    public interface IRepository<T> where T : class
+    {
+        T GetFirstOrDefault(Expression<Func<T, bool>> filter);
+
+        IEnumerable<T> GetAll();
+
+        void Add(T entity);
+
+        void Remove(T entity);
+
+        void RemoveRange(IEnumerable<T> entities);
+    }
+}
