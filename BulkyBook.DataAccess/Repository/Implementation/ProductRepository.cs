@@ -30,11 +30,11 @@ namespace BulkyBook.DataAccess.Repository.Implementation
                 productFromDb.CategoryId = product.CategoryId;
                 productFromDb.CoverTypeId = product.CoverTypeId;
 
-                if (product.ImageUrl != null)
+                if (!string.IsNullOrWhiteSpace(product.ImageUrl))
                     productFromDb.ImageUrl = product.ImageUrl;
             }
 
-            _db.Update(product);
+            _db.Update(productFromDb);
         }
     }
 }

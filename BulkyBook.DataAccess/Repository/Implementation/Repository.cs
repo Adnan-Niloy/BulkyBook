@@ -16,16 +16,30 @@ namespace BulkyBook.DataAccess.Repository.Implementation
             _dbSet = _db.Set<T>();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
             query = query.Where(filter);
+
+            if (includeProperties != null)
+            {
+                query = includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Aggregate(query,
+                    (current, includeProperty) => current.Include(includeProperty));
+            }
+
             return query.FirstOrDefault();
         }
 
-        public IEnumerable<T> GetAll()
+        public IEnumerable<T> GetAll(string? includeProperties = null)
         {
             IQueryable<T> query = _dbSet;
+
+            if (includeProperties != null)
+            {
+                query = includeProperties.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Aggregate(query,
+                    (current, includeProperty) => current.Include(includeProperty));
+            }
+
             return query.ToList();
         }
 
