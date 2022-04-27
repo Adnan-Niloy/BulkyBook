@@ -4,6 +4,8 @@
     {
         ICategoryRepository CategoryRepository { get; }
 
+        ICoverTypeRepository CoverTypeRepository { get; }
+
         void Save();
     }
 }
