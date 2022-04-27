@@ -10,7 +10,7 @@ namespace BulkyBook.DataAccess.Repository.Implementation
         private readonly ApplicationDbContext _db;
         private readonly DbSet<T> _dbSet;
 
-        public Repository(ApplicationDbContext db)
+        protected Repository(ApplicationDbContext db)
         {
             _db = db;
             _dbSet = _db.Set<T>();
