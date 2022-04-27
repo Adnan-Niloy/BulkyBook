@@ -18,9 +18,5 @@ namespace BulkyBook.DataAccess.Repository.Implementation
             _db.Update(category);
         }
 
-        public void Save()
-        {
-            _db.SaveChanges();
-        }
     }
 }
