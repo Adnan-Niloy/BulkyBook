@@ -33,7 +33,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\CoverType\" />
     <Folder Include="wwwroot\images\products\" />
   </ItemGroup>
 
