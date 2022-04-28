@@ -11,6 +11,8 @@ namespace BulkyBook.DataAccess.Repository.Implementation
 
         public IProductRepository ProductRepository { get; private set; }
 
+        public ICompanyRepository CompanyRepository { get; private set; }
+
         private readonly ApplicationDbContext _db;
 
         public UnitOfWork(ApplicationDbContext db)
@@ -19,6 +21,7 @@ namespace BulkyBook.DataAccess.Repository.Implementation
             CategoryRepository = new CategoryRepository(_db);
             CoverTypeRepository = new CoverTypeRepository(_db);
             ProductRepository = new ProductRepository(_db);
+            CompanyRepository = new CompanyRepository(_db);
         }
 
 
