@@ -23,7 +23,6 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
             return View();
         }
 
-
         //GET
         public IActionResult Upsert(int? id)
         {
