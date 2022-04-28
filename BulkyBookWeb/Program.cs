@@ -1,7 +1,9 @@
 using BulkyBook.DataAccess.Data;
 using BulkyBook.DataAccess.Repository.Implementation;
 using BulkyBook.DataAccess.Repository.Interface;
+using BulkyBook.Utility;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,9 +15,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlSer
     builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 
-builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddSingleton<IEmailSender, EmailSender>();
+builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
@@ -33,6 +38,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication(); ;
 app.UseAuthorization();
+
 
 app.MapRazorPages();
 app.MapControllerRoute(
