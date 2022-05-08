@@ -21,7 +21,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            var productList = _unitOfWork.ProductRepository.GetAll("Category,CoverType");
+            var productList = _unitOfWork.ProductRepository.GetAll(includeProperties: "Category,CoverType");
             return View(productList);
         }
 
