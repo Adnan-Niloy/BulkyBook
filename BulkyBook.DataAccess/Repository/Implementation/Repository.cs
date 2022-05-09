@@ -16,9 +16,9 @@ namespace BulkyBook.DataAccess.Repository.Implementation
             _dbSet = _db.Set<T>();
         }
 
-        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        public T GetFirstOrDefault(Expression<Func<T, bool>> filter, string? includeProperties = null, bool tracked = true)
         {
-            IQueryable<T> query = _dbSet;
+            var query = tracked ? _dbSet : _dbSet.AsNoTracking();
             query = query.Where(filter);
 
             if (includeProperties != null)

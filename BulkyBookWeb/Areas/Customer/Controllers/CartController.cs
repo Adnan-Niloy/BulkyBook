@@ -120,8 +120,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 c => c.ApplicationUserId == claim.Value,
                 includeProperties: "Product");
 
-            shoppingCartViewModel.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
-            shoppingCartViewModel.OrderHeader.OrderStatus = SD.StatusPending;
+
             shoppingCartViewModel.OrderHeader.OrderDate = DateTime.Now;
             shoppingCartViewModel.OrderHeader.ApplicationUserId = claim.Value;
 
@@ -131,6 +130,19 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                     cart.Product.Price100);
 
                 shoppingCartViewModel.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+            }
+
+            var applicationUser = _unitOfWork.ApplicationUserRepository.GetFirstOrDefault(c => c.Id == claim.Value);
+
+            if (applicationUser.CompanyId.GetValueOrDefault() == 0)
+            {
+                shoppingCartViewModel.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+                shoppingCartViewModel.OrderHeader.OrderStatus = SD.StatusPending;
+            }
+            else
+            {
+                shoppingCartViewModel.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+                shoppingCartViewModel.OrderHeader.OrderStatus = SD.StatusApproved;
             }
 
             _unitOfWork.OrderHeaderRepository.Add(shoppingCartViewModel.OrderHeader);
@@ -148,6 +160,9 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
                 _unitOfWork.OrderDetailRepository.Add(orderDetail);
                 _unitOfWork.Save();
             }
+
+            if (applicationUser.CompanyId.GetValueOrDefault() != 0)
+                return RedirectToAction("OrderConfirmation", "Cart", new { id = shoppingCartViewModel.OrderHeader.Id });
 
             //stripe settings
             const string domain = "https://localhost:44333";
@@ -186,7 +201,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             var service = new SessionService();
             var session = service.Create(options);
 
-            _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(shoppingCartViewModel.OrderHeader.Id, session.Id, session.PaymentIntentId);
+            _unitOfWork.OrderHeaderRepository.UpdateStripePaymentId(shoppingCartViewModel.OrderHeader.Id,
+                session.Id, session.PaymentIntentId);
             _unitOfWork.Save();
 
             Response.Headers.Add("Location", session.Url);
@@ -197,13 +213,16 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
         {
             var orderHeader = _unitOfWork.OrderHeaderRepository.GetFirstOrDefault(c => c.Id == id);
 
-            var service = new SessionService();
-            var session = service.Get(orderHeader.SessionId);
-
-            if (session.PaymentStatus.ToLower() == "paid")
+            if (orderHeader.PaymentStatus != SD.PaymentStatusDelayedPayment)
             {
-                _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
-                _unitOfWork.Save();
+                var service = new SessionService();
+                var session = service.Get(orderHeader.SessionId);
+
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeaderRepository.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
             }
 
             var shoppingCarts = _unitOfWork.ShoppingCartRepository
