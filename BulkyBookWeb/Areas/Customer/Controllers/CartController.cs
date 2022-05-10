@@ -60,7 +60,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             var cart = _unitOfWork.ShoppingCartRepository.GetFirstOrDefault(c => c.Id == cartId);
 
             if (cart.Count <= 1)
+            {
                 _unitOfWork.ShoppingCartRepository.Remove(cart);
+                var count = _unitOfWork.ShoppingCartRepository.GetAll(c => c.ApplicationUserId == cart.ApplicationUserId)
+                    .ToList().Count - 1;
+                HttpContext.Session.SetInt32(SD.SessionCart, count);
+            }
             else
                 _unitOfWork.ShoppingCartRepository.DecrementCount(cart, 1);
 
@@ -74,6 +79,10 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
             var cart = _unitOfWork.ShoppingCartRepository.GetFirstOrDefault(c => c.Id == cartId);
             _unitOfWork.ShoppingCartRepository.Remove(cart);
             _unitOfWork.Save();
+
+            var count = _unitOfWork.ShoppingCartRepository.GetAll(c => c.ApplicationUserId == cart.ApplicationUserId)
+                .ToList().Count;
+            HttpContext.Session.SetInt32(SD.SessionCart, count);
 
             return RedirectToAction("Index");
         }
